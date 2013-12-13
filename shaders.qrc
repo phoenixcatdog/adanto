@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shaders/vx_image_threshold.glsl</file>
+        <file>shaders/fr_image_threshold.glsl</file>
+        <file>shaders/fr_image_threshold2.glsl</file>
+    </qresource>
+</RCC>

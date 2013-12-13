@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/backward.png</file>
+        <file>icons/forward.png</file>
+    </qresource>
+</RCC>
