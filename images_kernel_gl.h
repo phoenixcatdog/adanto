@@ -1,6 +1,9 @@
 #ifndef IMAGES_KERNEL_GL_H
 #define IMAGES_KERNEL_GL_H
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 #include <QGLFunctions>
 #include <QGLShaderProgram>
 

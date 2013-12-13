@@ -1,5 +1,8 @@
 #include "imagesdisplay.h"
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 ImagesDisplay::ImagesDisplay(QWidget *parent) :
     QGLWidget(parent)
 {

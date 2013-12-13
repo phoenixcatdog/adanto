@@ -1,6 +1,9 @@
 #ifndef IMAGESDISPLAY_H
 #define IMAGESDISPLAY_H
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 #include "images_kernel_gl.h"
 #include "controlPanel.h"
 

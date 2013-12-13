@@ -1,5 +1,8 @@
 #include "images_kernel_gl.h"
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 #include <QVector2D>
 #include <QVector3D>
 

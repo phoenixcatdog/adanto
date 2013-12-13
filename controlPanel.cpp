@@ -1,5 +1,8 @@
 #include "controlPanel.h"
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>

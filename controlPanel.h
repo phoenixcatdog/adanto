@@ -1,6 +1,9 @@
 #ifndef CONTROL_PANEL_H
 #define CONTROL_PANEL_H
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 #include <QWidget>
 #include <QDialog>
 #include <Qlabel>

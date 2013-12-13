@@ -1,4 +1,6 @@
 #ifdef GL_ES
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
 // Set default precision to medium
   precision mediump   int;
   precision mediump float;
