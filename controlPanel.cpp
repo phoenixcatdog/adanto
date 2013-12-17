@@ -3,20 +3,6 @@
 //Copyright: Jose Hevia jose.francisco.hevia (at) gmail
 //License :GPLv2
 
-#include <QDialog>
-#include <QLabel>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QToolButton>
-#include <QStackedWidget>
-#include <QSlider>
-#include <QComboBox>
-#include <QListWidget>
-
-#include <QFile>
-#include <QMessageBox>
-
 controlPanel::controlPanel(QWidget *parent) :
     QDialog(parent)
 {
@@ -26,7 +12,8 @@ controlPanel::controlPanel(QWidget *parent) :
   QToolButton *left_arrow  = new QToolButton();
   left_arrow->setAutoRaise(true);
   left_arrow->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  left_arrow->setIcon(QIcon("://icons/backward.png"));
+  left_arrow->setPopupMode(QToolButton::InstantPopup);
+  //left_arrow->setIcon(QIcon("://icons/backward.png"));
 
   QString fileName("://icons/backward.png");
   if(QFile(fileName).exists() == false)
@@ -35,7 +22,23 @@ controlPanel::controlPanel(QWidget *parent) :
   QToolButton *right_arrow = new QToolButton();
   right_arrow->setAutoRaise(true);
   right_arrow->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  right_arrow->setIcon(QIcon("://icons/forward.png"));
+  right_arrow->setPopupMode(QToolButton::InstantPopup);
+  //right_arrow->setIcon(QIcon("://icons/forward.png"));
+
+  QAction *left_arrow_action = new QAction(this);
+  left_arrow_action->setIcon(QIcon("://icons/backward.png"));
+  left_arrow_action->setText("Last Page");
+  left_arrow_action->setStatusTip(tr("go to last step"));
+  connect(left_arrow_action, SIGNAL(triggered(bool)), this, SLOT(change_last_page(bool)));
+
+  QAction *right_arrow_action = new QAction(this);
+  right_arrow_action->setIcon(QIcon("://icons/forward.png"));
+  right_arrow_action->setText("Next Page");
+  right_arrow_action->setStatusTip(tr("go to next step"));
+  connect(right_arrow_action, SIGNAL(triggered(bool)), this, SLOT(change_next_page(bool)));
+
+  left_arrow->setDefaultAction(left_arrow_action);
+  right_arrow->setDefaultAction(right_arrow_action);
 
   QPushButton *pushy       = new QPushButton("hello");
 
@@ -94,7 +97,7 @@ controlPanel::controlPanel(QWidget *parent) :
   QWidget *first_page  = new QWidget;
   QWidget *second_page = new QWidget;
 
-  QStackedWidget *stack_of_widgets = new QStackedWidget;
+  stack_of_widgets = new QStackedWidget;
   stack_of_widgets->addWidget(first_page);
   stack_of_widgets->addWidget(second_page);
 
@@ -116,6 +119,7 @@ controlPanel::controlPanel(QWidget *parent) :
   p2layout->addWidget(pushy2);
   p2layout->addWidget(pushy3);
 
+  stack_of_widgets->setCurrentIndex(0);
   mlayout->addWidget(stack_of_widgets);
 
   setLayout(mlayout);
@@ -125,4 +129,34 @@ controlPanel::controlPanel(QWidget *parent) :
 
 controlPanel::~controlPanel()
 {
+}
+
+void controlPanel::change_next_page(bool checked)
+{
+  int index;
+
+  index = stack_of_widgets->currentIndex();
+
+  if (index < (3-1))
+  {
+    index++;
+    stack_of_widgets->setCurrentIndex(index);
+  }
+  stack_of_widgets->show();
+  return;
+}
+
+void controlPanel::change_last_page(bool checked)
+{
+  int index;
+
+  index = stack_of_widgets->currentIndex();
+
+  if (index > (0))
+  {
+    index--;
+    stack_of_widgets->setCurrentIndex(index);
+  }
+  stack_of_widgets->show();
+  return;
 }

@@ -8,6 +8,18 @@
 #include <QDialog>
 #include <Qlabel>
 #include <QSlider>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QStackedWidget>
+#include <QSlider>
+#include <QComboBox>
+#include <QListWidget>
+#include <QAction>
+
+#include <QFile>
+#include <QMessageBox>
 
 class controlPanel : public QDialog
 {
@@ -17,6 +29,12 @@ public:
     ~controlPanel();
     QSlider   *hor_slider;
     QSlider *sweep_slider;
+
+    QStackedWidget *stack_of_widgets;
+public slots:
+    void change_next_page(bool);
+    void change_last_page(bool);
+
 private:
     QLabel       *Title;
 };
