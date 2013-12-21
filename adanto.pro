@@ -14,11 +14,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         imagesdisplay.cpp \  
     images_kernel_gl.cpp \
-    controlPanel.cpp
+    controlPanel.cpp \
+    scannerfiledialog.cpp
 
 HEADERS  += imagesdisplay.h \
     images_kernel_gl.h \
-    controlPanel.h
+    controlPanel.h \
+    scannerfiledialog.h
 
 OTHER_FILES +=
 

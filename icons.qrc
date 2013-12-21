@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>icons/backward.png</file>
         <file>icons/forward.png</file>
+        <file>icons/semaphore.png</file>
+        <file>icons/semaphore_red.png</file>
+        <file>icons/semaphore_yellow.png</file>
+        <file>icons/semaphore_green.png</file>
     </qresource>
 </RCC>

@@ -10,6 +10,8 @@ ImagesDisplay::ImagesDisplay(QWidget *parent) :
 
     threshold_val = 0.5;
     connect(panel->hor_slider, SIGNAL(valueChanged(int)), this, SLOT(change_threshold_val(int)));
+
+    explorer = new scannerFileDialog(this);
 }
 
 ImagesDisplay::~ImagesDisplay()

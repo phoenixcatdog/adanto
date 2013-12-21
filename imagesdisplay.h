@@ -6,6 +6,7 @@
 
 #include "images_kernel_gl.h"
 #include "controlPanel.h"
+#include "scannerfiledialog.h"
 
 #include <QGLWidget>
 #include <QGLFunctions>
@@ -57,6 +58,7 @@ private:
     QVector2D     last_press_pos;
 
     controlPanel          *panel;
+    scannerFileDialog  *explorer;
     qreal           image_aspect;
     float          threshold_val;//Threshold val range = 0-1.0
 };
