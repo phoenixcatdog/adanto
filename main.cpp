@@ -1,8 +1,10 @@
 #include "imagesdisplay.h"
 #include <QApplication>
+#include <QObject>
 
 //Copyright: Jose Hevia jose.francisco.hevia (at) gmail
 //License :GPLv2
+
 
 int main(int argc, char *argv[])
 {
@@ -11,7 +13,7 @@ int main(int argc, char *argv[])
     a.setApplicationVersion("0.1");
 
 #ifndef QT_NO_OPENGL
-    ImagesDisplay w;
+    ImagesDisplay w(NULL,&a);
     w.show();
 #else
     QLabel err_mess("This program requires OpenGL");

@@ -6,6 +6,13 @@
 controlPanel::controlPanel(QWidget *parent) :
     QDialog(parent)
 {
+  //Camera parameters
+  //Projector parameters
+  //Set parameters
+  //Preview project
+  //Preview projector analysis
+  //Calculate 3d view
+
   Title = new QLabel("Calibration", this);
   Title->setAlignment(Qt::AlignCenter);
 
@@ -131,6 +138,18 @@ controlPanel::~controlPanel()
 {
 }
 
+void controlPanel::update_control_panel (image_info* info)
+{
+
+}
+
+void controlPanel::update_list_view(image_info *info)
+{
+
+}
+
+
+
 void controlPanel::change_next_page(bool checked)
 {
   int index;
@@ -158,5 +177,12 @@ void controlPanel::change_last_page(bool checked)
     stack_of_widgets->setCurrentIndex(index);
   }
   stack_of_widgets->show();
+  return;
+}
+
+void controlPanel::closeEvent(QCloseEvent *event)
+{
+  emit closing_panel();
+
   return;
 }

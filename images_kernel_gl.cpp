@@ -83,3 +83,8 @@ void Images_kernel_gl::draw_image_to_screen(QGLShaderProgram *program)
     // Draw image from VBO
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 }
+
+void     Images_kernel_gl::update_image_on_screen(image_info *info)
+{
+
+}

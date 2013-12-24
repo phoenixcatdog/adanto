@@ -20,7 +20,8 @@ SOURCES += main.cpp\
 HEADERS  += imagesdisplay.h \
     images_kernel_gl.h \
     controlPanel.h \
-    scannerfiledialog.h
+    scannerfiledialog.h \
+    inter_class_data.h
 
 OTHER_FILES +=
 

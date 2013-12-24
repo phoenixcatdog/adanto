@@ -20,7 +20,12 @@
 #include <QFileSystemModel>
 #include <QAction>
 #include <QSplitter>
-#include <Qstring>
+#include <QString>
+
+#include "inter_class_data.h"
+
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
 
 #include <QFile>
 #include <QMessageBox>
@@ -30,7 +35,7 @@ class scannerFileDialog : public QDialog
 {
     Q_OBJECT
 public:
-    scannerFileDialog(QWidget *parent = 0);
+    scannerFileDialog (QWidget *parent = 0);
     ~scannerFileDialog();
 
     int checkFolder(QString folder_path);
@@ -49,10 +54,13 @@ public:
 
     int    candidate_ver_level;//Candidate vertical level from file sources
     int    candidate_hor_level;
-
+    QString    *project_folder;
 public slots:
     void click_on_treeview(QModelIndex);
-    void set_good_file(bool);
+    void double_click_on_listview(QModelIndex);
+
+protected:
+    void         closeEvent(QCloseEvent *);
 
 private:
     QLabel *createPixmapLabel();
@@ -79,6 +87,10 @@ private:
     QString   *error_message[20];
 
     QChar         all_digits[10];//The decimal numbers digits
+
+signals:
+    void load_new_project(int, int, QString *);
+    void closing_panel();
 };
 
 #endif // SCANNERFILEDIALOG_H

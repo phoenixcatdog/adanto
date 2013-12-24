@@ -3,20 +3,77 @@
 //Copyright: Jose Hevia jose.francisco.hevia (at) gmail
 //License :GPLv2
 
-ImagesDisplay::ImagesDisplay(QWidget *parent) :
-    QGLWidget(parent)
+#include <QDebug>
+
+ImagesDisplay::ImagesDisplay(QWidget *parent,QApplication *App) :
+    QGLWidget(parent = 0)
 {
-    panel = new controlPanel(this);
+    main_app = App;
+    panel = new controlPanel();
+    visible_control_panel = true;
 
     threshold_val = 0.5;
     connect(panel->hor_slider, SIGNAL(valueChanged(int)), this, SLOT(change_threshold_val(int)));
+    connect(panel, SIGNAL(closing_panel()), this, SLOT(toggle_panel()));
 
-    explorer = new scannerFileDialog(this);
+    explorer = new scannerFileDialog();
+    connect(explorer, SIGNAL(load_new_project(int,int,QString*)), this, SLOT(load_new_project(int,int,QString*)));
+    visible_explorer_panel = true;
+    connect(explorer, SIGNAL(closing_panel()), this, SLOT(toggle_explorer()));
+
+    create_menus();
 }
 
 ImagesDisplay::~ImagesDisplay()
 {
     deleteTexture(texture);
+}
+
+int ImagesDisplay::create_menus(void)
+{
+  main_menubar = new QMenuBar(this);
+  window_menu = main_menubar->addMenu(tr("&Window"));
+
+  toggle_control_panel = new QAction(tr("Toggle Control panel"), this);
+  window_menu->addAction(toggle_control_panel);
+  connect(toggle_control_panel, SIGNAL(triggered()), this, SLOT(toggle_panel()));
+
+  toggle_explorer_panel = new QAction(tr("Toggle Explorer panel"), this);
+  window_menu->addAction(toggle_explorer_panel);
+  connect(toggle_explorer_panel, SIGNAL(triggered()), this, SLOT(toggle_explorer()));
+
+  main_menubar->show();
+
+  return (0);
+}
+
+
+void ImagesDisplay::toggle_panel()
+{
+  if (visible_control_panel ==true)
+  {
+    panel->hide();
+    visible_control_panel = false;
+  }
+  else
+  {
+      panel->show();
+      visible_control_panel = true;
+  }
+}
+
+void ImagesDisplay::toggle_explorer()
+{
+  if (visible_explorer_panel ==true)
+  {
+    explorer->hide();
+    visible_explorer_panel = false;
+  }
+  else
+  {
+      explorer->show();
+      visible_explorer_panel = true;
+  }
 }
 
 void ImagesDisplay::change_threshold_val(int val)
@@ -31,6 +88,31 @@ void ImagesDisplay::change_threshold_val(int val)
       threshold_val = fval;
   }
 }
+
+void ImagesDisplay::load_new_project(int level_h,int level_v, QString *folder)
+{
+  image_info *info;
+
+  info = &ima_info;
+
+  info->level_h_max = level_h;
+  info->level_v_max = level_v;
+  info->folder = folder;
+
+  info->selected_list_item  = 0;
+  info->default_orientation = 0;
+
+  qDebug() << "level_h is " << level_h;
+  qDebug() << "level_v is " << level_v;
+  qDebug() << "folder is " << folder;
+
+
+  panel->update_control_panel(info);
+  panel->update_list_view(info);
+  kernel.update_image_on_screen(info);
+}
+
+
 
 void ImagesDisplay::mousePressEvent(QMouseEvent *e)
 {
@@ -186,4 +268,9 @@ void ImagesDisplay::paintGL()
     program.setUniformValue("threshold_val",val);
 
     kernel.draw_image_to_screen(&program);
+}
+
+void ImagesDisplay::closeEvent(QCloseEvent *event)
+{
+  main_app->quit();
 }

@@ -1,5 +1,8 @@
 #include "scannerfiledialog.h"
 
+//Copyright: Jose Hevia jose.francisco.hevia (at) gmail
+//License :GPLv2
+
 int scannerFileDialog::add_sem_error(QPixmap *semaphore_light,QString *error_message_val)
 {
     int   num;
@@ -54,9 +57,11 @@ int scannerFileDialog::create_all_digits(void)
     return(0);
 }
 
-scannerFileDialog::scannerFileDialog(QWidget *parent) :
+scannerFileDialog::scannerFileDialog( QWidget *parent) :
     QDialog(parent)
 {
+    project_folder = NULL;
+
     help_message   = QString ("Please select the folder that contains the project.");
     green_message  = QString ("Looks like there is a valid project in this folder. Double Click on any file inside the folder to open it.");
     yellow_message = QString ("This folder does not contain a valid project.");
@@ -126,6 +131,8 @@ scannerFileDialog::scannerFileDialog(QWidget *parent) :
     big_forest->addLayout(tree_two);
 
     setLayout(big_forest);
+    connect(files_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(double_click_on_listview(QModelIndex)));
+
     setWindowTitle("Project explorer");
     show();
 }
@@ -255,8 +262,16 @@ void scannerFileDialog::click_on_treeview(QModelIndex index)
   QPixmap          *pix_p;
   QString       *string_p;
 
+  if (project_folder != NULL)
+  {
+    delete project_folder;
+    project_folder = NULL;
+  }
+
   QString folder_path = folder_model->fileInfo(index).absoluteFilePath();
   files_view->setRootIndex(files_model->setRootPath(folder_path));
+
+  project_folder = new QString(folder_path);//Create a new instance of QString
 
   out = checkFolder(folder_path);
 
@@ -271,7 +286,24 @@ void scannerFileDialog::click_on_treeview(QModelIndex index)
   return;
 }
 
-void scannerFileDialog::set_good_file(bool checked)
+void scannerFileDialog::double_click_on_listview(QModelIndex index)
 {
+  int                 out;
+
+  out = checkFolder(*project_folder);
+
+  if(out == 0)//Load new project in imagedisplay
+  {
+    emit load_new_project(candidate_hor_level, candidate_ver_level,project_folder);
+  }
+
+
+  return;
+}
+
+void scannerFileDialog::closeEvent(QCloseEvent *event)
+{
+  emit closing_panel();
+
   return;
 }
