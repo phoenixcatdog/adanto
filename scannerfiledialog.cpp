@@ -26,24 +26,7 @@ int scannerFileDialog::get_sem_error(int num, QPixmap **semaphore_light,QString 
     return(0);
 }
 
-int scannerFileDialog::fill_digits(int num, QChar **digit_1,QChar **digit_2)
-{
-    int   d1;
-    int   d2;
-
-    if (num> 99)
-    {return(-1);}
-
-    d1 = num / 10;
-    d2 = num - 10*d1;
-
-    *digit_1 = &(all_digits[d1]);
-    *digit_2 = &(all_digits[d2]);
-
-    return(0);
-}
-
-int scannerFileDialog::create_all_digits(void)
+int scannerFileDialog::create_all_digits(image_info *info)
 {
    int    i;
    char dig;
@@ -51,15 +34,16 @@ int scannerFileDialog::create_all_digits(void)
    for( i = 0 ; i < 10; i++ )
    {
      dig = i + '0';
-     all_digits[i] = QChar(dig);
+     info->all_digits[i] = QChar(dig);
    }
 
     return(0);
 }
 
-scannerFileDialog::scannerFileDialog( QWidget *parent) :
-    QDialog(parent)
+scannerFileDialog::scannerFileDialog( QWidget *parent, image_info *info_p) :
+    QDialog(parent = 0)
 {
+    info = info_p;
     project_folder = NULL;
 
     help_message   = QString ("Please select the folder that contains the project.");
@@ -69,7 +53,7 @@ scannerFileDialog::scannerFileDialog( QWidget *parent) :
     red_message1   = QString ("H0000 exist but V0000 does not");
     red_message2   = QString ("V0000 exist but H0000 does not");
 
-    create_all_digits();
+    create_all_digits(info);
 
     error_num = 0;
     add_sem_error( &semaphore_green, &green_message);// Everything is ok
@@ -78,10 +62,10 @@ scannerFileDialog::scannerFileDialog( QWidget *parent) :
     add_sem_error(   &semaphore_red,   &red_message2);// Various error codes
     add_sem_error(   &semaphore_red,   &red_message2);// Various error codes
 
-    big_forest = new QVBoxLayout(this);
+    big_forest = new QVBoxLayout();
 
-    splitter   = new QSplitter(this);
-    tree_one   = new QHBoxLayout(this);
+    splitter   = new QSplitter();
+    tree_one   = new QHBoxLayout();
     splitter->setOrientation(Qt::Horizontal);
 
     folders_view = new QTreeView();
@@ -107,7 +91,7 @@ scannerFileDialog::scannerFileDialog( QWidget *parent) :
     splitter->addWidget(folders_view);
     splitter->addWidget(files_view);
 
-    tree_two   = new QHBoxLayout(this);
+    tree_two   = new QHBoxLayout();
     tree_two->setSizeConstraint(QLayout::SetMinimumSize);
 
     semaphore = QPixmap("://icons/semaphore.png");
@@ -221,7 +205,7 @@ int scannerFileDialog::checkFolder(QString folder_path)
         out_val = 0;
         for( i = 0; i < max_level; i++)//Find all horizontal levels
         {
-          fill_digits(i, &digit1, &digit2);
+          fill_digits(info,i, &digit1, &digit2);
           name_h.replace(rewriting_size_h  ,1,*digit1);
           name_h.replace(rewriting_size_h+1,1,*digit2);
 
@@ -235,7 +219,7 @@ int scannerFileDialog::checkFolder(QString folder_path)
 
         for( i = 0; i < max_level; i++)//Find all vertical levels
         {
-          fill_digits(i, &digit1, &digit2);
+          fill_digits(info,i, &digit1, &digit2);
           name_v.replace(rewriting_size_v  ,1,*digit1);
           name_v.replace(rewriting_size_v+1,1,*digit2);
 

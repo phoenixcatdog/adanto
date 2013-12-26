@@ -8,20 +8,26 @@
 ImagesDisplay::ImagesDisplay(QWidget *parent,QApplication *App) :
     QGLWidget(parent = 0)
 {
-    main_app = App;
-    panel = new controlPanel();
-    visible_control_panel = true;
+  main_app = App;
+  panel = new controlPanel(0,&ima_info);
+  visible_control_panel = true;
+  full_screen_on        = false;
 
-    threshold_val = 0.5;
-    connect(panel->hor_slider, SIGNAL(valueChanged(int)), this, SLOT(change_threshold_val(int)));
-    connect(panel, SIGNAL(closing_panel()), this, SLOT(toggle_panel()));
+  threshold_val = 0.5;
 
-    explorer = new scannerFileDialog();
-    connect(explorer, SIGNAL(load_new_project(int,int,QString*)), this, SLOT(load_new_project(int,int,QString*)));
-    visible_explorer_panel = true;
-    connect(explorer, SIGNAL(closing_panel()), this, SLOT(toggle_explorer()));
+  //reload_file_action = new QAction(tr("display load new file"), this);
+  connect(panel, SIGNAL(display_new_file()), this, SLOT(load_new_file()));
 
-    create_menus();
+  connect(panel->hor_slider, SIGNAL(valueChanged(int)), this, SLOT(change_threshold_val(int)));
+  connect(panel, SIGNAL(closing_panel()), this, SLOT(toggle_panel()));
+
+  explorer = new scannerFileDialog(0, &ima_info);
+  connect(explorer, SIGNAL(load_new_project(int,int,QString*)), this, SLOT(load_new_project(int,int,QString*)));
+  visible_explorer_panel = true;
+  connect(explorer, SIGNAL(closing_panel()), this, SLOT(toggle_explorer()));
+
+  create_menus();
+  ima_info.update_screen = 1;
 }
 
 ImagesDisplay::~ImagesDisplay()
@@ -42,6 +48,10 @@ int ImagesDisplay::create_menus(void)
   window_menu->addAction(toggle_explorer_panel);
   connect(toggle_explorer_panel, SIGNAL(triggered()), this, SLOT(toggle_explorer()));
 
+  //toggle_full_screen = new QAction(tr("Show full screen"), this);
+  //window_menu->addAction(toggle_full_screen);
+  //connect(toggle_full_screen, SIGNAL(triggered()), this, SLOT(toggle_fullscreen()));
+
   main_menubar->show();
 
   return (0);
@@ -57,8 +67,8 @@ void ImagesDisplay::toggle_panel()
   }
   else
   {
-      panel->show();
-      visible_control_panel = true;
+    panel->show();
+    visible_control_panel = true;
   }
 }
 
@@ -71,8 +81,28 @@ void ImagesDisplay::toggle_explorer()
   }
   else
   {
-      explorer->show();
-      visible_explorer_panel = true;
+    explorer->show();
+    visible_explorer_panel = true;
+  }
+}
+
+void ImagesDisplay::toggle_fullscreen()
+{
+  Qt::WindowFlags flags = 0;
+
+  if (full_screen_on == true)
+  {
+    this->setWindowFlags(flags);
+    this->showNormal();
+    full_screen_on = false;
+  }
+  else
+  {
+    flags |= Qt::FramelessWindowHint;
+    flags |= Qt::WindowStaysOnTopHint;
+    this->setWindowFlags(flags);
+    this->showFullScreen();
+    full_screen_on = true;
   }
 }
 
@@ -98,21 +128,37 @@ void ImagesDisplay::load_new_project(int level_h,int level_v, QString *folder)
   info->level_h_max = level_h;
   info->level_v_max = level_v;
   info->folder = folder;
+  info->info_flag = 0;
+  info->info_flag |= INFO_FLAG_DRAW_IMAGE;
 
   info->selected_list_item  = 0;
-  info->default_orientation = 0;
+  info->selected_orientation = 0;
 
-  qDebug() << "level_h is " << level_h;
+  qDebug() << "levelY_h is " << level_h;
   qDebug() << "level_v is " << level_v;
-  qDebug() << "folder is " << folder;
-
+  qDebug() << "folder is " << *folder;
 
   panel->update_control_panel(info);
   panel->update_list_view(info);
+  kernel.load_texture_from_image(info);
+  load_texture(info);
   kernel.update_image_on_screen(info);
+  recalculate_perspective(info->display_w,info->display_h);
+  show();
 }
 
+void ImagesDisplay::load_new_file(void)
+{
+  image_info *info;
 
+  info = &ima_info;
+
+  kernel.load_texture_from_image(info);
+  load_texture(info);
+  kernel.update_image_on_screen(info);
+  recalculate_perspective(info->display_w,info->display_h);
+  show();
+}
 
 void ImagesDisplay::mousePressEvent(QMouseEvent *e)
 {
@@ -145,7 +191,7 @@ void ImagesDisplay::init_shaders()
     { close();}
 
     // Compile fragment shader
-    if (!program.addShaderFromSourceFile(QGLShader::Fragment, "://shaders/fr_image_threshold2.glsl"))
+    if (!program.addShaderFromSourceFile(QGLShader::Fragment, "://shaders/fr_image_threshold.glsl"))
     {  close();}
 
     // Link shader pipeline
@@ -156,44 +202,36 @@ void ImagesDisplay::init_shaders()
     if (!program.bind())
     {  close();}
 
+    //Compile threshold program
+    // Compile vertex shader
+    if (!program_threshold.addShaderFromSourceFile(QGLShader::Vertex, "://shaders/vx_image_threshold.glsl"))
+    { close();}
+
+    // Compile fragment shader
+    if (!program_threshold.addShaderFromSourceFile(QGLShader::Fragment, "://shaders/fr_image_threshold2.glsl"))
+    {  close();}
+
+    // Link shader pipeline
+    if (!program_threshold.link())
+    {  close();}
+
+    // Select shader as current
+    if (!program_threshold.bind())
+    {  close();}
+
     // Restore system locale
     setlocale(LC_ALL, "");
 }
 
-void ImagesDisplay::init_textures()
-{
-    QImage    ima_loaded;
-    qreal          width;
-    qreal         height;
-
-    // Default texture for making tests, we will dynamically load them in the future
-    glEnable(GL_TEXTURE_2D);
-    ima_loaded = QImage("://texture_examples/H00.png");
-    texture = bindTexture(ima_loaded);
-
-    width = ima_loaded.width();
-    height = ima_loaded.height();
-    if (height == 0){height = 1.0;}
-    image_aspect = width/height;//Aspect ratio of image
-
-    // Set nearest filtering mode for texture minification
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    // Set bilinear filtering mode for texture magnification
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Make texture coordinates to repeat, not really useful as we will never get out of the vertex coords
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
 void ImagesDisplay::initializeGL()
 {
+    image_aspect       =  1.0;
+    ima_info.no_textures =  1;
     initializeGLFunctions();
     //qglClearColor(Qt::black);
     qglClearColor(Qt::red);
     init_shaders();
-    init_textures();
+    glEnable(GL_TEXTURE_2D);
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -207,7 +245,43 @@ void ImagesDisplay::initializeGL()
     timer.start(12, this);
 }
 
-void ImagesDisplay::resizeGL(int w, int h)
+
+void ImagesDisplay::load_texture(image_info *info)
+{
+  QImage          *ima_loaded;
+  qreal                 width;
+  qreal                height;
+
+  ima_loaded = info->ima_loaded;
+
+  if (ima_loaded == NULL)
+  {  return;  }
+  if (info->no_textures)
+  { info->no_textures = 0;}
+  else
+  { deleteTexture(texture); }
+  texture = bindTexture(*(ima_loaded));
+
+  //FIXME Assert all pictures have the same dimentions in the future
+  width = ima_loaded->width();
+  height = ima_loaded->height();
+  if (height == 0){height = 1.0;}
+  image_aspect = width/height;//Aspect ratio of image
+
+  // Set nearest filtering mode for texture minification
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // Set bilinear filtering mode for texture magnification
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Make texture coordinates to repeat, not really useful as we will never get out of the vertex coords
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  return;
+}
+
+void ImagesDisplay::recalculate_perspective(int w, int h)
 {
     qreal   val_x;
     qreal   val_y;
@@ -246,10 +320,22 @@ void ImagesDisplay::resizeGL(int w, int h)
     //projection.perspective(fov, aspect, zNear, zFar);
 }
 
+void ImagesDisplay::resizeGL(int w, int h)
+{
+    ima_info.display_h = h;
+    ima_info.display_w = w;
+    recalculate_perspective(w,h);
+}
+
 void ImagesDisplay::paintGL()
 {
-    QMatrix4x4 matrix;
-    float         val;
+    float                     val;
+    QMatrix4x4             matrix;
+    QGLShaderProgram *sel_program;
+
+   // if (!(ima_info.update_screen))
+   // {return;}
+   // ima_info.update_screen = 0;
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,16 +344,25 @@ void ImagesDisplay::paintGL()
     matrix.translate(0.0, 0.0, -5.0);
     //matrix.rotate(rotation);
 
+    if (ima_info.preview_mode == 0)
+    {  sel_program = &program;  }
+    else
+    {  sel_program = &program_threshold;  }
+    sel_program->bind();
+
     // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection *matrix);
+    sel_program->setUniformValue("mvp_matrix", projection *matrix);
 
     // Default texture unit which contains the texture from resources or file
-    program.setUniformValue("texture", 0);
+    sel_program->setUniformValue("texture", 0);
 
     val = threshold_val;
-    program.setUniformValue("threshold_val",val);
+    sel_program->setUniformValue("threshold_val",val);
 
-    kernel.draw_image_to_screen(&program);
+    if (ima_info.info_flag & INFO_FLAG_DRAW_IMAGE)
+    {
+      kernel.draw_image_to_screen(sel_program);
+    }
 }
 
 void ImagesDisplay::closeEvent(QCloseEvent *event)

@@ -6,6 +6,9 @@
 #include <QVector2D>
 #include <QVector3D>
 
+
+#include <QDebug>
+
 struct VertexData
 {
     QVector3D position;
@@ -82,6 +85,56 @@ void Images_kernel_gl::draw_image_to_screen(QGLShaderProgram *program)
 
     // Draw image from VBO
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+}
+
+int Images_kernel_gl::load_texture_from_image(image_info *info)
+{
+  int             level;
+  int         error_val;
+  int    rewriting_size;
+
+  level   =  0;
+
+  QString  slash = "/";
+  QString extension = QString(".jpg");
+  QChar           *digit1;
+  QChar           *digit2;
+
+  QString id     = "H";
+  if (info->selected_orientation == 1)
+  {  id.replace(0,1,"V");}
+
+  QString number_l1  = "00";
+  QString number_l2  = "00";
+
+  QString name = *(info->folder);
+  rewriting_size = (info->folder)->size() + slash.size() + id.size() + number_l1.size();
+
+  name.reserve( rewriting_size + number_l2.size() + extension.size() );
+  name += slash;
+  name += id;
+  name += number_l1;
+  name += number_l2;
+  name += extension;
+
+  level = info->selected_list_item;
+  fill_digits(info,level, &digit1, &digit2);
+  name.replace(rewriting_size  ,1,*digit1);
+  name.replace(rewriting_size+1,1,*digit2);
+
+  qDebug() << "folder 2 is " << name;
+
+  error_val = 0;//No errors if everything goes well
+
+  //FIXME No error handling, we will do it later
+  if ((info->ima_loaded) != 0)
+  {delete info->ima_loaded;}
+  info->ima_loaded = new QImage(name);
+
+  if (error_val != 0 )
+  {  return(error_val);  }
+
+  return(error_val);
 }
 
 void     Images_kernel_gl::update_image_on_screen(image_info *info)

@@ -17,8 +17,8 @@ public:
 
     void                                          init();
     void        draw_image_to_screen(QGLShaderProgram *);
+     int           load_texture_from_image(image_info *);
     void            update_image_on_screen(image_info *);
-
 private:
     void init_images_display();
 

@@ -6,7 +6,7 @@
 
 #include <QWidget>
 #include <QDialog>
-#include <Qlabel>
+#include <QLabel>
 #include <QSlider>
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -35,7 +35,7 @@ class scannerFileDialog : public QDialog
 {
     Q_OBJECT
 public:
-    scannerFileDialog (QWidget *parent = 0);
+    scannerFileDialog (QWidget *, image_info *);
     ~scannerFileDialog();
 
     int checkFolder(QString folder_path);
@@ -63,11 +63,13 @@ protected:
     void         closeEvent(QCloseEvent *);
 
 private:
-    QLabel *createPixmapLabel();
-    int   get_sem_error(int,QPixmap **,QString**);
-    int          add_sem_error(QPixmap*,QString*);
-    int          fill_digits(int,QChar**,QChar**);
-    int                   create_all_digits(void);
+    image_info               *info;
+
+    QLabel                       *createPixmapLabel();
+    int       get_sem_error(int,QPixmap **,QString**);
+    int              add_sem_error(QPixmap*,QString*);
+    //int  fill_digits(image_info*,int,QChar**,QChar**);
+    int                create_all_digits(image_info*);
 
     QTreeView        *folders_view;
     QListView          *files_view;
@@ -85,8 +87,6 @@ private:
     int                error_num;
     QPixmap *error_semaphore[20];
     QString   *error_message[20];
-
-    QChar         all_digits[10];//The decimal numbers digits
 
 signals:
     void load_new_project(int, int, QString *);

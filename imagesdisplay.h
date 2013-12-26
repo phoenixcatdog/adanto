@@ -42,25 +42,30 @@ public slots:
     void    load_new_project(int, int, QString *);
     void          toggle_panel();
     void       toggle_explorer();
+    void     toggle_fullscreen();
+    void         load_new_file();
 
 protected:
     void   mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void        timerEvent(QTimerEvent *e);
 
-    void                    initializeGL();//Those three are standard QGLWidget methods
-    void            resizeGL(int w, int h);
-    void                         paintGL();
+    void                         initializeGL();//Those three are standard QGLWidget methods
+    void                 resizeGL(int w, int h);
+    void  recalculate_perspective(int w, int h);
+    void                              paintGL();
+    void             load_texture(image_info *);
 
     void                    init_shaders();
-    void                   init_textures();
 
     void         closeEvent(QCloseEvent *);
 
 private:
-    QApplication       *main_app;
-    QBasicTimer            timer;
-    QGLShaderProgram     program;
+    QApplication                 *main_app;
+    QBasicTimer                      timer;
+    QGLShaderProgram               program;
+    QGLShaderProgram     program_threshold;
+
     Images_kernel_gl      kernel;
 
     GLuint               texture;
@@ -78,17 +83,19 @@ private:
 
     QMenu             *window_menu;
     QAction         *window_action;
+    QAction    *reload_file_action;
     QAction  *toggle_control_panel;
     QAction *toggle_explorer_panel;
+    QAction    *toggle_full_screen;
 
     bool     visible_control_panel;
     bool    visible_explorer_panel;
+    bool            full_screen_on;
 
     int        create_menus(void);
     QMenuBar        *main_menubar;
     QAction          *help_action;
     QAction          *exit_action;
-
 };
 
 #endif // IMAGESDISPLAY_H

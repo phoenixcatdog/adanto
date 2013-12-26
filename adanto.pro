@@ -15,7 +15,8 @@ SOURCES += main.cpp\
         imagesdisplay.cpp \  
     images_kernel_gl.cpp \
     controlPanel.cpp \
-    scannerfiledialog.cpp
+    scannerfiledialog.cpp \
+    shared_fuctions.cpp
 
 HEADERS  += imagesdisplay.h \
     images_kernel_gl.h \
