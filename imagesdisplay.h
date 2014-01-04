@@ -53,6 +53,7 @@ protected:
     void                         initializeGL();//Those three are standard QGLWidget methods
     void                 resizeGL(int w, int h);
     void  recalculate_perspective(int w, int h);
+    void recalculate_perspective_frustrum(int w, int h);
     void                              paintGL();
     void             load_texture(image_info *);
 
@@ -91,6 +92,16 @@ private:
     bool     visible_control_panel;
     bool    visible_explorer_panel;
     bool            full_screen_on;
+
+    void    paint_camera_frustrum();
+    void paint_projector_frustrum();
+    void           paint_set_view();
+    void    paint_preview_project();
+    void paint_projector_analysis();
+    void          paint_3d_output();
+
+    void             (ImagesDisplay::*paint_function[6])();
+    void  (ImagesDisplay::*view_proj_function[6])(int,int);
 
     int        create_menus(void);
     QMenuBar        *main_menubar;

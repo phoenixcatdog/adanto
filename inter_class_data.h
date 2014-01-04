@@ -6,6 +6,18 @@
 
 #define INFO_FLAG_DRAW_IMAGE  0x1
 
+#include <QGLFunctions>
+#include <QGLShaderProgram>
+
+
+typedef struct
+{
+  int               size;//in GLfloats
+  int         size_bytes;
+  int           elements;
+  GLfloat        *buffer;
+}gl_fbuffer;
+
 typedef struct
 {
   unsigned int          info_flag;
@@ -28,6 +40,12 @@ typedef struct
   QString                 *folder;
   QStringList       *hor_pic_list;
   QStringList       *ver_pic_list;
+
+  //Adanto Steps infomation
+  int                 current_step;
+  int                    steps_num;
+  QString         *adanto_steps[6];
+  QColor            *step_color[6];
 
   QChar         all_digits[10];//The decimal numbers digits
 }image_info;

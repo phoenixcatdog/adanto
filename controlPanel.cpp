@@ -6,28 +6,52 @@
 controlPanel::controlPanel(QWidget *parent, image_info *info_p) :
     QDialog(parent = 0)
 {
-  //Camera parameters
-  //Projector parameters
-  //Set parameters
-  //Preview project
-  //Preview projector analysis
-  //Calculate 3d view
-
   //Create all necessary data
 
   info = info_p;
   hor_list_model = NULL;
   ver_list_model = NULL;
 
+  info->steps_num = 6;
+  info->adanto_steps[0] = new QString("Camera parameters");
+  info->adanto_steps[1] = new QString("Projector parameters");
+  info->adanto_steps[2] = new QString("Set parameters");
+  info->adanto_steps[3] = new QString("Preview project");
+  info->adanto_steps[4] = new QString("Preview projector analysis");
+  info->adanto_steps[5] = new QString("Calculate 3d view");
+
   create_image_info(info);
   update_picture_data(info);
   update_picture_lists(info);
 
   //Create the UI
-
-  Title = new QLabel("Calibration", this);
+  //General title
+  info->current_step = 0;
+  Title = new QLabel(*(info->adanto_steps[(info->current_step)]), this);
   Title->setAlignment(Qt::AlignCenter);
 
+  //Widgets of different pages
+  //Page 0 (camera parameters)
+  QComboBox   *cam_model_selector;
+  cam_model_selector = new QComboBox();
+  cam_model_selector->addItem("Sony");
+  cam_model_selector->addItem("Iphone");
+  //connect(cam_model_selector, SIGNAL(currentIndexChanged(int)), this, SLOT(combobox_preview_changed(int)));
+
+  //Page 1(Projector parameters)
+  QComboBox   *proj_model_selector;
+  proj_model_selector = new QComboBox();
+  proj_model_selector->addItem("Sony");
+  proj_model_selector->addItem("Iphone");
+  //connect(proj_model_selector, SIGNAL(currentIndexChanged(int)), this, SLOT(combobox_preview_changed(int)));
+
+
+  //Page 2(Set parameters)
+  QTreeView        *params_editor;
+  params_editor = new QTreeView();
+
+
+  //Page 3(Preview Project)
   QToolButton *left_arrow  = new QToolButton();
   left_arrow->setAutoRaise(true);
   left_arrow->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -101,6 +125,10 @@ controlPanel::controlPanel(QWidget *parent, image_info *info_p) :
   QVBoxLayout *mlayout = new QVBoxLayout(this);
   QHBoxLayout *hlayout = new QHBoxLayout();
 
+  //Page 4(preview projector analysis)
+  //Page 5(calculate 3d view)
+  QPushButton *calculator_3d       = new QPushButton("calculate 3D");
+
   //This is the top part that displays the current step in the entire process
   hlayout->addWidget(left_arrow);
   hlayout->addWidget(Title);
@@ -109,32 +137,69 @@ controlPanel::controlPanel(QWidget *parent, image_info *info_p) :
   mlayout->addLayout(hlayout);
 
   //We are going to create a stack of widgets pages,so we can the cycle between pages
-  QWidget *first_page  = new QWidget;
-  QWidget *second_page = new QWidget;
+  QWidget           *page_n[6];
+  page_n[0]      = new QWidget;
+  page_n[1]      = new QWidget;
+  page_n[2]      = new QWidget;
+  page_n[3]      = new QWidget;
+  page_n[4]      = new QWidget;
+  page_n[5]      = new QWidget;
+  QVBoxLayout   *v_layout_n[6];
+  QVBoxLayout *selected_layout;
 
   stack_of_widgets = new QStackedWidget;
-  stack_of_widgets->addWidget(first_page);
-  stack_of_widgets->addWidget(second_page);
+  stack_of_widgets->addWidget(page_n[0]);
+  stack_of_widgets->addWidget(page_n[1]);
+  stack_of_widgets->addWidget(page_n[2]);
+  stack_of_widgets->addWidget(page_n[3]);
+  stack_of_widgets->addWidget(page_n[4]);
+  stack_of_widgets->addWidget(page_n[5]);
 
-  //First page populating
-  QVBoxLayout *m2layout = new QVBoxLayout(first_page);
-  first_page->setLayout(m2layout);
-  m2layout->addWidget(hor_slider);
-  m2layout->addWidget(hor_ver_selector);
-  m2layout->addWidget(ima_pre_selector);
-  m2layout->addWidget(list_view);
+  //First page populating(camera parameters)
+  selected_layout = v_layout_n[0];
+  selected_layout = new QVBoxLayout(page_n[0]);
+  (page_n[0])->setLayout(selected_layout);
+  selected_layout->addWidget(cam_model_selector);
 
-  //First page populating
-  QVBoxLayout *p2layout = new QVBoxLayout(second_page);
-  first_page->setLayout(m2layout);
-  p2layout->addWidget(pushy);
-  p2layout->addWidget(sweep_slider);
-  p2layout->addWidget(sweep_hor_ver_selector);
-  p2layout->addWidget(pushy1);
-  p2layout->addWidget(pushy2);
-  p2layout->addWidget(pushy3);
+  //Second page populating(projector parameters)
+  selected_layout = v_layout_n[1];
+  selected_layout = new QVBoxLayout(page_n[1]);
+  (page_n[1])->setLayout(selected_layout);
+  selected_layout->addWidget(proj_model_selector);
 
-  stack_of_widgets->setCurrentIndex(0);
+  //thrird page populating (set parameters)
+  selected_layout = v_layout_n[2];
+  selected_layout = new QVBoxLayout(page_n[2]);
+  (page_n[2])->setLayout(selected_layout);
+  selected_layout->addWidget(params_editor);
+
+  //page 4 populating(Preview project)
+  selected_layout = v_layout_n[3];
+  selected_layout = new QVBoxLayout(page_n[3]);
+  (page_n[3])->setLayout(selected_layout);
+  selected_layout->addWidget(hor_slider);
+  selected_layout->addWidget(hor_ver_selector);
+  selected_layout->addWidget(ima_pre_selector);
+  selected_layout->addWidget(list_view);
+
+  // page 5 populating(Previrew projector analysis)
+  selected_layout = v_layout_n[4];
+  selected_layout = new QVBoxLayout(page_n[4]);
+  (page_n[4])->setLayout(selected_layout);
+  selected_layout->addWidget(pushy);
+  selected_layout->addWidget(sweep_slider);
+  selected_layout->addWidget(sweep_hor_ver_selector);
+  selected_layout->addWidget(pushy1);
+  selected_layout->addWidget(pushy2);
+  selected_layout->addWidget(pushy3);
+
+  // page 6 populating(calculate 3d view)
+  selected_layout = v_layout_n[5];
+  selected_layout = new QVBoxLayout(page_n[5]);
+  (page_n[5])->setLayout(selected_layout);
+  selected_layout->addWidget(calculator_3d);
+
+  stack_of_widgets->setCurrentIndex((info->current_step));
   mlayout->addWidget(stack_of_widgets);
 
 
@@ -244,11 +309,14 @@ void controlPanel::change_next_page(bool checked)
 
   index = stack_of_widgets->currentIndex();
 
-  if (index < (3-1))
+  if (index < ((info->steps_num)-1))
   {
     index++;
     stack_of_widgets->setCurrentIndex(index);
   }
+
+  info->current_step = index;
+  Title->setText(*(info->adanto_steps[index]));
   stack_of_widgets->show();
   return;
 }
@@ -264,6 +332,8 @@ void controlPanel::change_last_page(bool checked)
     index--;
     stack_of_widgets->setCurrentIndex(index);
   }
+  info->current_step = index;
+  Title->setText(*(info->adanto_steps[index]));
   stack_of_widgets->show();
   return;
 }

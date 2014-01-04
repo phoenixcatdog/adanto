@@ -16,6 +16,7 @@
 #include <QSlider>
 #include <QComboBox>
 #include <QListWidget>
+#include <QTreeView>
 #include <QAction>
 
 #include <QFile>
@@ -50,16 +51,17 @@ protected:
     void         closeEvent(QCloseEvent *);
 
 private:
-    QLabel                    *Title;
-    image_info                 *info;
 
-    QListView             *list_view;
-    QStringListModel *hor_list_model;
-    QStringListModel *ver_list_model;
+  QLabel                    *Title;
+  image_info                 *info;
+
+  QListView             *list_view;
+  QStringListModel *hor_list_model;
+  QStringListModel *ver_list_model;
 
 signals:
-    void    closing_panel();
-    void display_new_file();
+  void    closing_panel();
+  void display_new_file();
 };
 
 #endif // CONTROL_PANEL_H
